@@ -14,9 +14,9 @@ const sort = ({limit, offset, sort, sortby}) => {
   return Pool.query(`SELECT * FROM seller 
   ORDER BY ${sortby} ${sort} LIMIT ${limit} OFFSET ${offset}`)
 }
-const select = (seller_id) => {
+const select = (id) => {
   return Pool.query(`SELECT * FROM seller
-  WHERE seller_id=${seller_id}`)
+  WHERE id='${id}'`)
 }
 const selectSeller = (seller_name) => {
   return Pool.query(`SELECT * FROM seller 
@@ -38,14 +38,14 @@ const updatePassword = (seller_email, password) => {
   return Pool.query(`UPDATE seller SET password='${password}' 
   WHERE seller_email='${seller_email}'`)
 }
-const update = (seller_id, seller_name, seller_email, phone_number, store_name, store_description) => {
+const update = (id, seller_name, seller_email, phone_number, store_name, store_description) => {
   return Pool.query(`UPDATE seller SET 
     seller_name='${seller_name}', seller_email='${seller_email}', phone_number='${phone_number}', 
-    store_name='${store_name}' AND store_description='${store_description}'
-  WHERE seller_id='${seller_id}'`)
+    store_name='${store_name}', store_description='${store_description}'
+  WHERE id='${id}'`)
 }
-const deleteSeller = (seller_id) => {
-  return Pool.query(`DELETE FROM seller WHERE seller_id=${seller_id}`)
+const deleteSeller = (id) => {
+  return Pool.query(`DELETE FROM seller WHERE id='${id}'`)
 }
 const countSeller = () =>{
   return Pool.query('SELECT COUNT(*) FROM seller')

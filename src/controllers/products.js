@@ -67,13 +67,13 @@ const productController = {
     const {
       category_id, seller_id, product_name, product_brand, stock,
       price, product_review, product_colors, size, condition,
-      product_description, isSoldOut, isArchived
+      product_description
     } = req.body
     try {
       const data = await productModel.insert(
         category_id, seller_id, product_name, product_brand, stock,
         price, product_review, product_colors, size, condition,
-        product_description, isSoldOut, isArchived
+        product_description
       )
       res.status(201).json({
         message: 'Product is added',
@@ -86,17 +86,17 @@ const productController = {
     }
   },
   update: async (req, res) => {
-    const { product_id } = req.params
+    const { products_id } = req.params
     const {
-      category_id, seller_id, product_name, product_brand, 
-      stock, price, product_review, product_colors, size, 
-      condition, product_description, isSoldOut, isArchived
+      product_name, product_brand, stock, price, 
+      product_review, product_colors, size, 
+      condition, product_description
     } = req.body
     try {
       const result = await productModel.update(
-        product_id, category_id, seller_id, product_name, product_brand, 
+        products_id, product_name, product_brand, 
         stock, price, product_review, product_colors, size, 
-        condition, product_description, isSoldOut, isArchived
+        condition, product_description
       )
       res.status(200).json({
         message: 'Product is updated',
@@ -109,9 +109,9 @@ const productController = {
     }
   },
   delete: async (req, res) => {
-    const { product_id } = req.params
+    const { products_id } = req.params
     try {
-      const result = await productModel.deleteProduct(product_id)
+      const result = await productModel.deleteProduct(products_id)
       res.status(200).json({
         message: 'Product is deleted',
         data: result

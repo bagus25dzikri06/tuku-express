@@ -12,7 +12,7 @@ const sort = ({limit, offset, sort, sortby}) => {
 }
 const select = (product_id) => {
   return Pool.query(`SELECT * FROM products
-  WHERE product_id=${product_id}`)
+  WHERE product_id='${product_id}'`)
 }
 const selectProduct = (product_name) => {
   return Pool.query(`SELECT * FROM products 
@@ -21,32 +21,31 @@ const selectProduct = (product_name) => {
 const insert = (
     category_id, seller_id, product_name, product_brand, stock,
     price, product_review, product_colors, size, condition,
-    product_description, isSoldOut, isArchived
+    product_description
   ) => {
   return Pool.query(`INSERT INTO products(
     category_id, seller_id, product_name, product_brand, stock,
     price, product_review, product_colors, size, condition,
-    product_description, isSoldOut, isArchived
+    product_description
   ) VALUES (
-    '${category_id}', '${seller_id}', '${product_name}', '${product_brand}', '${stock}',
-    '${price}', '${product_review}', '${product_colors}', '${size}', '${condition}',
-    '${product_description}', '${isSoldOut}', '${isArchived}'
+    '${category_id}', '${seller_id}', '${product_name}', '${product_brand}', ${stock},
+    ${price}, ${product_review}, '${product_colors}', '${size}', '${condition}',
+    '${product_description}'
   ) RETURNING *`)
 }
 const update = (
-    product_id, category_id, seller_id, product_name, product_brand, 
+    products_id, product_name, product_brand, 
     stock, price, product_review, product_colors, size, 
-    condition, product_description, isSoldOut, isArchived
+    condition, product_description
   ) => {
   return Pool.query(`UPDATE products SET 
-    category_id='${category_id}', seller_id='${seller_id}', product_name='${product_name}',
-    product_brand='${product_brand}', stock='${stock}', price='${price}', product_review='${product_review}',
-    product_colors='${product_colors}', size='${size}', condition='${condition}', product_description='${product_description}',
-    isSoldOut='${isSoldOut}' AND isArchived='${isArchived}'
-  WHERE product_id='${product_id}'`)
+    product_name='${product_name}', product_brand='${product_brand}', stock='${stock}', price='${price}', 
+    product_review='${product_review}', product_colors='${product_colors}', size='${size}', condition='${condition}',
+    product_description='${product_description}'
+  WHERE products_id='${products_id}'`)
 }
 const deleteProduct = (products_id) => {
-  return Pool.query(`DELETE FROM products WHERE products_id=${products_id}`)
+  return Pool.query(`DELETE FROM products WHERE products_id='${products_id}'`)
 }
 const countProduct = () =>{
   return Pool.query('SELECT COUNT(*) FROM products')

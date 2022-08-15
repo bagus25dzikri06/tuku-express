@@ -72,8 +72,8 @@ const sellerController = {
       )
   },
   getSeller: (req, res) => {
-    const { seller_id } = req.params
-    sellerModel.select(seller_id)
+    const { id } = req.params
+    sellerModel.select(id)
       .then(
         result => res.json(result.rows)
       )
@@ -82,14 +82,14 @@ const sellerController = {
   },
   insert: async (req, res) => {
     const {
-      seller_name, seller_email, phone_number, password, store_name, store_description
+      seller_name, seller_email, password, phone_number, store_name, store_description
     } = req.body
     try {
-      const result = await sellerModel.select(seller_name)
+      const result = await sellerModel.selectSeller(seller_name)
       if (result.rowCount > 0) throw new createErrors.BadRequest(`This customer's name has been used`)
 
       const data = await sellerModel.insert(
-        seller_name, seller_email, phone_number, password, store_name, store_description
+        seller_name, seller_email, password, phone_number, store_name, store_description
       )
       res.status(201).json({
         message: 'Seller is added',
@@ -118,13 +118,13 @@ const sellerController = {
     }
   },
   update: async (req, res) => {
-    const { seller_id } = req.params
+    const { id } = req.params
     const {
       seller_name, seller_email, phone_number, store_name, store_description
     } = req.body
     try {
       const result = await sellerModel.update(
-        seller_id, seller_name, seller_email, phone_number, store_name, store_description
+        id, seller_name, seller_email, phone_number, store_name, store_description
       )
       res.status(200).json({
         message: 'Seller is updated',
@@ -137,9 +137,9 @@ const sellerController = {
     }
   },
   delete: async (req, res) => {
-    const { seller_id } = req.params
+    const { id } = req.params
     try {
-      const result = await sellerModel.deleteSeller(seller_id)
+      const result = await sellerModel.deleteSeller(id)
       res.status(200).json({
         message: 'Seller is deleted',
         data: result

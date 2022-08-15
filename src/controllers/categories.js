@@ -46,7 +46,7 @@ const categoryController = {
       console.log(error);
     }
   },
-  getAllShippingAddresses: (req, res) => {
+  getAllCategories: (req, res) => {
     categoryModel.selectAll()
       .then(
         result => res.json(result.rows)
@@ -54,7 +54,7 @@ const categoryController = {
       .catch(err => res.send(err)
       )
   },
-  getShippingAddress: (req, res) => {
+  getCategory: (req, res) => {
     const { category_id } = req.params
     categoryModel.select(category_id)
       .then(

@@ -14,9 +14,13 @@ const select = (customer_id) => {
   return Pool.query(`SELECT * FROM customer
   WHERE customer_id=${customer_id}`)
 }
-const selectCustomer = (customer_name) => {
+const selectCustomerByName = (customer_name) => {
   return Pool.query(`SELECT * FROM customer 
   WHERE customer_name='${customer_name}'`)
+}
+const selectCustomerByEmail = (customer_email) => {
+  return Pool.query(`SELECT * FROM customer 
+  WHERE customer_email='${customer_email}'`)
 }
 const insert = (
     customer_name, customer_email, password, shipping_address_id,
@@ -52,7 +56,8 @@ module.exports = {
   search,
   sort,
   select,
-  selectCustomer,
+  selectCustomerByName,
+  selectCustomerByEmail,
   insert,
   updatePassword,
   update,
