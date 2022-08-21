@@ -1,4 +1,5 @@
 const customerModel = require('../models/customers')
+const { success, failed } = require('../helper/common')
 const createErrors = require('http-errors')
 const customerController = {
   search: async (req, res) => {
@@ -9,13 +10,9 @@ const customerController = {
       const result = await customerModel.search(search)
       if (result.rowCount === 0) throw new createErrors.BadRequest('Result not found')
       
-      res.status(200).json({
-        data: result.rows
-      })
+      return success(res, result.rows, 'success', 'Get customer search results successfully')
     }catch(err){
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Failed to get customer search results')
     }
   },
   sort: async (req, res) => {
@@ -32,36 +29,35 @@ const customerController = {
       const {rows: [count]} = await customerModel.countCustomer()
       const totalData = parseInt(count.count)
       const totalPage = Math.ceil(totalData/limit)
+      const pagination = {
+        currentPage: page,
+        limit: limit,
+        totalData: totalData,
+        totalPage: totalPage
+      }
       
-      res.status(200).json({
-        pagination:{
-          currentPage: page,
-          limit: limit,
-          totalData: totalData,
-          totalPage: totalPage
-        },
-        data: result.rows
-      })
-    }catch(error){
-      console.log(error);
+      return success(res, result.rows, 'success', 'Get customer sort results successfully', pagination)
+    }catch(err){
+      return failed(res, err, 'failed', 'Failed to get customer sort results')
     }
   },
-  getAllCustomer: (req, res) => {
-    customerModel.selectAll()
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+  getAllCustomer: async (req, res) => {
+    try {
+      const result = await customerModel.selectAll()
+      return success(res, result.rows, 'success', 'Get all customers successfully')
+    } catch (err) {
+      return failed(res, err, 'failed', 'Get all customers failed')
+    }
   },
-  getCustomer: (req, res) => {
+  getCustomer: async (req, res) => {
     const { customer_id } = req.params
-    customerModel.select(customer_id)
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+    try {
+      const result = await customerModel.select(customer_id)
+      if (result.rowCount === 0) throw new createErrors.BadRequest('Customer has not been registered')
+      return success(res, result.rows, 'success', 'Get customer based by ID successfully')
+    } catch (err) {
+      return failed(res, err.message, 'failed', 'Get customer based by ID failed')
+    }
   },
   insert: async (req, res) => {
     const {
@@ -76,14 +72,9 @@ const customerController = {
         customer_name, customer_email, password, shipping_address_id,
         phone_number, gender, birth_date
       )
-      res.status(201).json({
-        message: 'Customer is added',
-        data: data.rows[0]
-      })
+      return success(res, data.rows[0], 'success', 'Customer is added')
     } catch (err) {
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Customer is failed to be added')
     }
   },
   updatePassword: async (req, res) => {
@@ -92,14 +83,9 @@ const customerController = {
 
     try {
       const result = await customerModel.updatePassword(customer_email, password)
-      res.status(200).json({
-        message: `Customer's password is updated`,
-        data: result
-      })
+      return success(res, result, 'success', `Customer's password is updated`)
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', `Customer's password is failed to be updated`)
     }
   },
   update: async (req, res) => {
@@ -113,28 +99,18 @@ const customerController = {
         customer_id, customer_name, customer_email,
         shipping_address_id, phone_number, gender, birth_date
       )
-      res.status(200).json({
-        message: 'Customer is updated',
-        data: result
-      })
+      return success(res, result, 'success', 'Customer is updated')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Customer is failed to be updated')
     }
   },
   delete: async (req, res) => {
     const { customer_id } = req.params
     try {
       const result = await customerModel.deleteCustomer(customer_id)
-      res.status(200).json({
-        message: 'Customer is deleted',
-        data: result
-      })
+      return success(res, result, 'success', 'Customer is deleted')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Customer is failed to be deleted')
     }
   }
 }

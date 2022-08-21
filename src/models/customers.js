@@ -23,15 +23,13 @@ const selectCustomerByEmail = (customer_email) => {
   WHERE customer_email='${customer_email}'`)
 }
 const insert = (
-    customer_name, customer_email, password, shipping_address_id,
-    phone_number, gender, birth_date
+    customer_name, customer_email, password
   ) => {
   return Pool.query(`INSERT INTO customer(
     customer_name, customer_email, password, shipping_address_id,
     phone_number, gender, birth_date
   ) VALUES (
-    '${customer_name}', '${customer_email}', '${password}', '${shipping_address_id}', 
-    '${phone_number}', '${gender}', '${birth_date}'
+    '${customer_name}', '${customer_email}', '${password}', null, null, null, null
   ) RETURNING *`)
 }
 const updatePassword = (customer_email, password) => {

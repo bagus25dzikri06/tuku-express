@@ -1,4 +1,5 @@
 const productModel = require('../models/products')
+const { success, failed } = require('../helper/common')
 const createErrors = require('http-errors')
 const productController = {
   search: async (req, res) => {
@@ -9,13 +10,9 @@ const productController = {
       const result = await productModel.search(search)
       if (result.rowCount === 0) throw new createErrors.BadRequest('Result not found')
       
-      res.status(200).json({
-        data: result.rows
-      })
+      return success(res, result.rows, 'success', 'Get product search results successfully')
     }catch(err){
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Failed to get product search results')
     }
   },
   sort: async (req, res) => {
@@ -32,36 +29,35 @@ const productController = {
       const {rows: [count]} = await productModel.countProduct()
       const totalData = parseInt(count.count)
       const totalPage = Math.ceil(totalData/limit)
+      const pagination = {
+        currentPage: page,
+        limit: limit,
+        totalData: totalData,
+        totalPage: totalPage
+      }
       
-      res.status(200).json({
-        pagination:{
-          currentPage: page,
-          limit: limit,
-          totalData: totalData,
-          totalPage: totalPage
-        },
-        data: result.rows
-      })
-    }catch(error){
-      console.log(error);
+      return success(res, result.rows, 'success', 'Get product sort results successfully', pagination)
+    }catch(err){
+      return failed(res, err, 'failed', 'Failed to get product sort results')
     }
   },
-  getAllProducts: (req, res) => {
-    productModel.selectAll()
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+  getAllProducts: async (req, res) => {
+    try {
+      const result = await productModel.selectAll()
+      return success(res, result.rows, 'success', 'Get all products successfully')
+    } catch (err) {
+      return failed(res, err, 'failed', 'Get all products failed')
+    }
   },
-  getProduct: (req, res) => {
+  getProduct: async (req, res) => {
     const { product_id } = req.params
-    productModel.select(product_id)
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+    try {
+      const result = await productModel.select(product_id)
+      if (result.rowCount === 0) throw new createErrors.BadRequest('Product has not been added')
+      return success(res, result.rows, 'success', 'Get product based by ID successfully')
+    } catch (err) {
+      return failed(res, err.message, 'failed', 'Get product based by ID failed')
+    }
   },
   insert: async (req, res) => {
     const {
@@ -75,14 +71,9 @@ const productController = {
         price, product_review, product_colors, size, condition,
         product_description
       )
-      res.status(201).json({
-        message: 'Product is added',
-        data: data.rows[0]
-      })
+      return success(res, data.rows[0], 'success', 'Product is added')
     } catch (err) {
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err, 'failed', 'Product is failed to be added')
     }
   },
   update: async (req, res) => {
@@ -98,28 +89,18 @@ const productController = {
         stock, price, product_review, product_colors, size, 
         condition, product_description
       )
-      res.status(200).json({
-        message: 'Product is updated',
-        data: result
-      })
+      return success(res, result, 'success', 'Product is updated')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Product is failed to be updated')
     }
   },
   delete: async (req, res) => {
     const { products_id } = req.params
     try {
       const result = await productModel.deleteProduct(products_id)
-      res.status(200).json({
-        message: 'Product is deleted',
-        data: result
-      })
+      return success(res, result, 'success', 'Product is deleted')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Customer is failed to be deleted')
     }
   }
 }

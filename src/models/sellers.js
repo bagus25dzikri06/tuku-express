@@ -23,15 +23,13 @@ const selectSeller = (seller_name) => {
   WHERE seller_name='${seller_name}'`)
 }
 const insert = (
-  seller_name, seller_email, password,
-  phone_number, store_name, store_description
+  seller_name, seller_email, phone_number, store_name, password
 ) => {
   return Pool.query(`INSERT INTO seller(
-    seller_name, seller_email, password,
-    phone_number, store_name, store_description
+    seller_name, seller_email, phone_number, store_name, password, store_description
   ) VALUES (
     '${seller_name}', '${seller_email}', '${password}', 
-    '${phone_number}', '${store_name}', '${store_description}'
+    '${phone_number}', '${store_name}', null
   ) RETURNING *`)
 }
 const updatePassword = (seller_email, password) => {

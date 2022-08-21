@@ -1,34 +1,32 @@
 const orderModel = require('../models/orders')
+const { success, failed } = require('../helper/common')
+const createErrors = require('http-errors')
 const orderController = {
-  getAllOrders: (req, res) => {
-    orderModel.selectAll()
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+  getAllOrders: async (req, res) => {
+    try {
+      const result = await orderModel.selectAll()
+      return success(res, result.rows, 'success', 'Get all orders successfully')
+    } catch (err) {
+      return failed(res, err, 'failed', 'Get all orders failed')
+    }
   },
-  getOrder: (req, res) => {
+  getOrder: async (req, res) => {
     const { order_id } = req.params
-    orderModel.select(order_id)
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+    try {
+      const result = await orderModel.select(order_id)
+      if (result.rowCount === 0) throw new createErrors.BadRequest('Order has not been added')
+      return success(res, result.rows, 'success', 'Get order based by ID successfully')
+    } catch (err) {
+      return failed(res, err.message, 'failed', 'Get order based by ID failed')
+    }
   },
   insert: async (req, res) => {
     const { customer_id, product_id, product_order_total } = req.body
     try {
       const data = await orderModel.insert(customer_id, product_id, product_order_total)
-      res.status(201).json({
-        message: 'Order is added',
-        data: data.rows[0]
-      })
+      return success(res, data.rows[0], 'success', 'Order is added')
     } catch (err) {
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Order is failed to be added')
     }
   },
   update: async (req, res) => {
@@ -36,28 +34,18 @@ const orderController = {
     const { product_order_total } = req.body
     try {
       const result = await orderModel.update(order_id, product_order_total)
-      res.status(200).json({
-        message: 'Order is updated',
-        data: result
-      })
+      return success(res, result, 'success', 'Order is updated')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Order is failed to be updated')
     }
   },
   delete: async (req, res) => {
     const { order_id } = req.params
     try {
       const result = await orderModel.deleteOrder(order_id)
-      res.status(200).json({
-        message: 'Order is deleted',
-        data: result
-      })
+      return success(res, result, 'success', 'Order is deleted')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Order is failed to be deleted')
     }
   }
 }

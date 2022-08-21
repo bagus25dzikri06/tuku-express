@@ -1,4 +1,5 @@
 const shippingAddressModel = require('../models/shipping_addresses')
+const { success, failed } = require('../helper/common')
 const createErrors = require('http-errors')
 const shippingAddressController = {
   search: async (req, res) => {
@@ -9,13 +10,9 @@ const shippingAddressController = {
       const result = await shippingAddressModel.search(search)
       if (result.rowCount === 0) throw new createErrors.BadRequest('Result not found')
       
-      res.status(200).json({
-        data: result.rows
-      })
+      return success(res, result.rows, 'success', 'Get shipping address search results successfully')
     }catch(err){
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Failed to get shipping address search results')
     }
   },
   sort: async (req, res) => {
@@ -32,36 +29,35 @@ const shippingAddressController = {
       const {rows: [count]} = await shippingAddressModel.countShippingAddress()
       const totalData = parseInt(count.count)
       const totalPage = Math.ceil(totalData/limit)
+      const pagination = {
+        currentPage: page,
+        limit: limit,
+        totalData: totalData,
+        totalPage: totalPage
+      }
       
-      res.status(200).json({
-        pagination:{
-          currentPage: page,
-          limit: limit,
-          totalData: totalData,
-          totalPage: totalPage
-        },
-        data: result.rows
-      })
-    }catch(error){
-      console.log(error);
+      return success(res, result.rows, 'success', 'Get shipping address sort results successfully', pagination)
+    }catch(err){
+      return failed(res, err, 'failed', 'Failed to get shipping address sort results')
     }
   },
-  getAllShippingAddresses: (req, res) => {
-    shippingAddressModel.selectAll()
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+  getAllShippingAddresses: async (req, res) => {
+    try {
+      const result = await shippingAddressModel.selectAll()
+      return success(res, result.rows, 'success', 'Get all shipping addresses successfully')
+    } catch (err) {
+      return failed(res, err, 'failed', 'Get all shipping addresses failed')
+    }
   },
-  getShippingAddress: (req, res) => {
+  getShippingAddress: async (req, res) => {
     const { shipping_address_id } = req.params
-    shippingAddressModel.select(shipping_address_id)
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+    try {
+      const result = await shippingAddressModel.select(shipping_address_id)
+      if (result.rowCount === 0) throw new createErrors.BadRequest('Seller has not been registered')
+      return success(res, result.rows, 'success', 'Get shipping address based by ID successfully')
+    } catch (err) {
+      return failed(res, err.message, 'failed', 'Get shipping address based by ID failed')
+    }
   },
   insert: async (req, res) => {
     const {
@@ -73,14 +69,9 @@ const shippingAddressController = {
         customer_id, shipping_address_type, shipping_address_name, city,
         postal_code, recipient_name, recipient_phone_number, isPrimary
       )
-      res.status(201).json({
-        message: 'Shipping address is added',
-        data: data.rows[0]
-      })
+      return success(res, data.rows[0], 'success', 'Shipping address is added')
     } catch (err) {
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Shipping address is failed to be added')
     }
   },
   update: async (req, res) => {
@@ -94,28 +85,18 @@ const shippingAddressController = {
         shipping_address_id, customer_id, shipping_address_type, shipping_address_name, city,
         postal_code, recipient_name, recipient_phone_number, isPrimary
       )
-      res.status(200).json({
-        message: 'Shipping address is updated',
-        data: result
-      })
+      return success(res, result, 'success', 'Shipping address is updated')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Shipping address is failed to be updated')
     }
   },
   delete: async (req, res) => {
     const { shipping_address_id } = req.params
     try {
       const result = await shippingAddressModel.deleteShippingAddress(shipping_address_id)
-      res.status(200).json({
-        message: 'Shipping address is deleted',
-        data: result
-      })
+      return success(res, result, 'success', 'Shipping address is deleted')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Shipping address is failed to be deleted')
     }
   }
 }

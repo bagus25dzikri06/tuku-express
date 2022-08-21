@@ -1,22 +1,24 @@
 const transactionModel = require('../models/transactions')
+const { success, failed } = require('../helper/common')
 const createErrors = require('http-errors')
 const transactionController = {
-  getAllTransactions: (req, res) => {
-    transactionModel.selectAll()
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+  getAllTransactions: async (req, res) => {
+    try {
+      const result = await transactionModel.selectAll()
+      return success(res, result.rows, 'success', 'Get all transactions successfully')
+    } catch (err) {
+      return failed(res, err, 'failed', 'Get all transactions failed')
+    }
   },
-  getTransaction: (req, res) => {
+  getTransaction: async (req, res) => {
     const { transaction_id } = req.params
-    transactionModel.select(transaction_id)
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+    try {
+      const result = await transactionModel.select(transaction_id)
+      if (result.rowCount === 0) throw new createErrors.BadRequest('Customer has not been registered')
+      return success(res, result.rows, 'success', 'Get transaction based by ID successfully')
+    } catch (err) {
+      return failed(res, err.message, 'failed', 'Get transaction based by ID failed')
+    }
   },
   insert: async (req, res) => {
     const {

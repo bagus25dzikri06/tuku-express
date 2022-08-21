@@ -1,4 +1,5 @@
 const sellerModel = require('../models/sellers')
+const { success, failed } = require('../helper/common')
 const createErrors = require('http-errors')
 const sellerController = {
   searchSeller: async (req, res) => {
@@ -9,13 +10,9 @@ const sellerController = {
       const result = await sellerModel.searchSeller(search)
       if (result.rowCount === 0) throw new createErrors.BadRequest('Result not found')
       
-      res.status(200).json({
-        data: result.rows
-      })
+      return success(res, result.rows, 'success', 'Get seller search results successfully')
     }catch(err){
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Failed to get seller search results')
     }
   },
   searchStore: async (req, res) => {
@@ -26,13 +23,9 @@ const sellerController = {
       const result = await sellerModel.searchStore(search)
       if (result.rowCount === 0) throw new createErrors.BadRequest('Result not found')
       
-      res.status(200).json({
-        data: result.rows
-      })
+      return success(res, result.rows, 'success', 'Get store search results successfully')
     }catch(err){
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Failed to get store search results')
     }
   },
   sort: async (req, res) => {
@@ -49,56 +42,50 @@ const sellerController = {
       const {rows: [count]} = await sellerModel.countSeller()
       const totalData = parseInt(count.count)
       const totalPage = Math.ceil(totalData/limit)
+      const pagination = {
+        currentPage: page,
+        limit: limit,
+        totalData: totalData,
+        totalPage: totalPage
+      }
       
-      res.status(200).json({
-        pagination:{
-          currentPage: page,
-          limit: limit,
-          totalData: totalData,
-          totalPage: totalPage
-        },
-        data: result.rows
-      })
-    }catch(error){
-      console.log(error);
+      return success(res, result.rows, 'success', 'Get seller sort results successfully', pagination)
+    }catch(err){
+      return failed(res, err, 'failed', 'Failed to get seller sort results')
     }
   },
-  getAllSeller: (req, res) => {
-    sellerModel.selectAll()
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+  getAllSeller: async (req, res) => {
+    try {
+      const result = await sellerModel.selectAll()
+      return success(res, result.rows, 'success', 'Get all sellers successfully')
+    } catch (err) {
+      return failed(res, err, 'failed', 'Get all sellers failed')
+    }
   },
-  getSeller: (req, res) => {
+  getSeller: async (req, res) => {
     const { id } = req.params
-    sellerModel.select(id)
-      .then(
-        result => res.json(result.rows)
-      )
-      .catch(err => res.send(err)
-      )
+    try {
+      const result = await sellerModel.select(id)
+      if (result.rowCount === 0) throw new createErrors.BadRequest('Seller has not been registered')
+      return success(res, result.rows, 'success', 'Get seller based by ID successfully')
+    } catch (err) {
+      return failed(res, err.message, 'failed', 'Get seller based by ID failed')
+    }
   },
   insert: async (req, res) => {
     const {
-      seller_name, seller_email, password, phone_number, store_name, store_description
+      seller_name, seller_email, phone_number, store_name, password
     } = req.body
     try {
       const result = await sellerModel.selectSeller(seller_name)
       if (result.rowCount > 0) throw new createErrors.BadRequest(`This customer's name has been used`)
 
       const data = await sellerModel.insert(
-        seller_name, seller_email, password, phone_number, store_name, store_description
+        seller_name, seller_email, phone_number, store_name, password
       )
-      res.status(201).json({
-        message: 'Seller is added',
-        data: data.rows[0]
-      })
+      return success(res, data.rows[0], 'success', 'Seller is added')
     } catch (err) {
-      res.status(500).json({
-        message: err.message
-      })
+      return failed(res, err.message, 'failed', 'Seller is failed to be added')
     }
   },
   updatePassword: async (req, res) => {
@@ -107,14 +94,9 @@ const sellerController = {
 
     try {
       const result = await sellerModel.updatePassword(seller_email, password)
-      res.status(200).json({
-        message: `Seller's password is updated`,
-        data: result
-      })
+      return success(res, result, 'success', `Seller's password is updated`)
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', `Seller's password is failed to be updated`)
     }
   },
   update: async (req, res) => {
@@ -126,28 +108,18 @@ const sellerController = {
       const result = await sellerModel.update(
         id, seller_name, seller_email, phone_number, store_name, store_description
       )
-      res.status(200).json({
-        message: 'Seller is updated',
-        data: result
-      })
+      return success(res, result, 'success', 'Seller is updated')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Seller is failed to be updated')
     }
   },
   delete: async (req, res) => {
     const { id } = req.params
     try {
       const result = await sellerModel.deleteSeller(id)
-      res.status(200).json({
-        message: 'Seller is deleted',
-        data: result
-      })
+      return success(res, result, 'success', 'Seller is deleted')
     } catch (err) {
-      res.status(500).json({
-        message: err
-      })
+      return failed(res, err, 'failed', 'Customer is failed to be deleted')
     }
   }
 }
