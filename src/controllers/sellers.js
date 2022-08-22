@@ -72,33 +72,6 @@ const sellerController = {
       return failed(res, err.message, 'failed', 'Get seller based by ID failed')
     }
   },
-  insert: async (req, res) => {
-    const {
-      seller_name, seller_email, phone_number, store_name, password
-    } = req.body
-    try {
-      const result = await sellerModel.selectSeller(seller_name)
-      if (result.rowCount > 0) throw new createErrors.BadRequest(`This customer's name has been used`)
-
-      const data = await sellerModel.insert(
-        seller_name, seller_email, phone_number, store_name, password
-      )
-      return success(res, data.rows[0], 'success', 'Seller is added')
-    } catch (err) {
-      return failed(res, err.message, 'failed', 'Seller is failed to be added')
-    }
-  },
-  updatePassword: async (req, res) => {
-    const { seller_email } = req.params
-    const { password } = req.body
-
-    try {
-      const result = await sellerModel.updatePassword(seller_email, password)
-      return success(res, result, 'success', `Seller's password is updated`)
-    } catch (err) {
-      return failed(res, err, 'failed', `Seller's password is failed to be updated`)
-    }
-  },
   update: async (req, res) => {
     const { id } = req.params
     const {

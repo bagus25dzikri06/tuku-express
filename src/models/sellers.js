@@ -3,43 +3,39 @@ const selectAll = () => {
   return Pool.query(`SELECT * FROM seller`)
 }
 const searchSeller = (search) => {
-  return Pool.query(`SELECT * FROM seller 
-  WHERE LOWER(seller_name) LIKE LOWER('%${search}%')`)
+  return Pool.query(`SELECT * FROM seller WHERE LOWER(name) LIKE LOWER('%${search}%')`)
 }
 const searchStore = (search) => {
-  return Pool.query(`SELECT * FROM seller 
-  WHERE LOWER(store_name) LIKE LOWER('%${search}%')`)
+  return Pool.query(`SELECT * FROM seller WHERE LOWER(name) LIKE LOWER('%${search}%')`)
 }
 const sort = ({limit, offset, sort, sortby}) => {
-  return Pool.query(`SELECT * FROM seller 
-  ORDER BY ${sortby} ${sort} LIMIT ${limit} OFFSET ${offset}`)
+  return Pool.query(`SELECT * FROM seller ORDER BY ${sortby} ${sort} LIMIT ${limit} OFFSET ${offset}`)
 }
 const select = (id) => {
-  return Pool.query(`SELECT * FROM seller
-  WHERE id='${id}'`)
+  return Pool.query(`SELECT * FROM seller WHERE id='${id}'`)
 }
-const selectSeller = (seller_name) => {
-  return Pool.query(`SELECT * FROM seller 
-  WHERE seller_name='${seller_name}'`)
+const selectSeller = (name) => {
+  return Pool.query(`SELECT * FROM seller WHERE name='${name}'`)
+}
+const selectSellerByEmail = (email) => {
+  return Pool.query(`SELECT * FROM seller WHERE email='${email}'`)
 }
 const insert = (
-  seller_name, seller_email, phone_number, store_name, password
+  name, email
 ) => {
   return Pool.query(`INSERT INTO seller(
-    seller_name, seller_email, phone_number, store_name, password, store_description
+    name, email, phone_number, store_name, store_description
   ) VALUES (
-    '${seller_name}', '${seller_email}', '${password}', 
-    '${phone_number}', '${store_name}', null
+    '${name}', '${email}', NULL, NULL, NULL
   ) RETURNING *`)
 }
-const updatePassword = (seller_email, password) => {
+const updatePassword = (email, password) => {
   return Pool.query(`UPDATE seller SET password='${password}' 
-  WHERE seller_email='${seller_email}'`)
+  WHERE seller_email='${email}'`)
 }
-const update = (id, seller_name, seller_email, phone_number, store_name, store_description) => {
+const update = (id, name, email, phone_number, store_name, store_description) => {
   return Pool.query(`UPDATE seller SET 
-    seller_name='${seller_name}', seller_email='${seller_email}', phone_number='${phone_number}', 
-    store_name='${store_name}', store_description='${store_description}'
+    name='${name}', email='${email}', phone_number='${phone_number}', store_name='${store_name}', store_description='${store_description}'
   WHERE id='${id}'`)
 }
 const deleteSeller = (id) => {
@@ -56,6 +52,7 @@ module.exports = {
   sort,
   select,
   selectSeller,
+  selectSellerByEmail,
   insert,
   updatePassword,
   update,

@@ -63,13 +63,13 @@ const productController = {
     const {
       category_id, seller_id, product_name, product_brand, stock,
       price, product_review, product_colors, size, condition,
-      product_description
+      product_description, photo
     } = req.body
     try {
       const data = await productModel.insert(
         category_id, seller_id, product_name, product_brand, stock,
         price, product_review, product_colors, size, condition,
-        product_description
+        product_description, photo
       )
       return success(res, data.rows[0], 'success', 'Product is added')
     } catch (err) {

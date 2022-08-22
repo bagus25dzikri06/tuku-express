@@ -4,46 +4,41 @@ const selectAll = () => {
 }
 const search = (search) => {
   return Pool.query(`SELECT * FROM customer 
-  WHERE LOWER(customer_name) LIKE LOWER('%${search}%')`)
+  WHERE LOWER(name) LIKE LOWER('%${search}%')`)
 }
 const sort = ({limit, offset, sort, sortby}) => {
   return Pool.query(`SELECT * FROM customer 
   ORDER BY ${sortby} ${sort} LIMIT ${limit} OFFSET ${offset}`)
 }
-const select = (customer_id) => {
-  return Pool.query(`SELECT * FROM customer
-  WHERE customer_id=${customer_id}`)
+const select = (id) => {
+  return Pool.query(`SELECT * FROM customer WHERE id='${id}'`)
 }
-const selectCustomerByName = (customer_name) => {
-  return Pool.query(`SELECT * FROM customer 
-  WHERE customer_name='${customer_name}'`)
+const selectCustomerByName = (name) => {
+  return Pool.query(`SELECT * FROM customer WHERE name='${name}'`)
 }
-const selectCustomerByEmail = (customer_email) => {
-  return Pool.query(`SELECT * FROM customer 
-  WHERE customer_email='${customer_email}'`)
+const selectCustomerByEmail = (email) => {
+  return Pool.query(`SELECT * FROM customer WHERE email='${email}'`)
 }
 const insert = (
-    customer_name, customer_email, password
-  ) => {
+    name, email
+) => {
   return Pool.query(`INSERT INTO customer(
-    customer_name, customer_email, password, shipping_address_id,
+    name, email, shipping_address_id,
     phone_number, gender, birth_date
   ) VALUES (
-    '${customer_name}', '${customer_email}', '${password}', null, null, null, null
+    '${name}', '${email}', NULL, NULL, NULL, NULL
   ) RETURNING *`)
 }
-const updatePassword = (customer_email, password) => {
-  return Pool.query(`UPDATE customer SET password='${password}' 
-  WHERE customer_email='${customer_email}'`)
+const updatePassword = (email, password) => {
+  return Pool.query(`UPDATE customer SET password='${password}' WHERE email='${email}'`)
 }
-const update = (customer_id, customer_name, customer_email, phone_number, gender, birth_date) => {
+const update = (id, name, email, phone_number, gender, birth_date) => {
   return Pool.query(`UPDATE customer SET 
-    customer_name='${customer_name}', customer_email='${customer_email}', phone_number='${phone_number}', 
-    gender='${gender}' AND birth_date='${birth_date}'
-  WHERE customer_id='${customer_id}'`)
+    name='${name}', email='${email}', phone_number='${phone_number}', gender='${gender}', birth_date='${birth_date}'
+  WHERE id='${id}'`)
 }
-const deleteCustomer = (customer_id) => {
-  return Pool.query(`DELETE FROM customer WHERE customer_id=${customer_id}`)
+const deleteCustomer = (id) => {
+  return Pool.query(`DELETE FROM customer WHERE id=${id}`)
 }
 const countCustomer = () =>{
   return Pool.query('SELECT COUNT(*) FROM customer')

@@ -21,16 +21,16 @@ const selectProduct = (product_name) => {
 const insert = (
     category_id, seller_id, product_name, product_brand, stock,
     price, product_review, product_colors, size, condition,
-    product_description
+    product_description, photo
   ) => {
   return Pool.query(`INSERT INTO products(
     category_id, seller_id, product_name, product_brand, stock,
     price, product_review, product_colors, size, condition,
-    product_description
+    product_description, photo
   ) VALUES (
     '${category_id}', '${seller_id}', '${product_name}', '${product_brand}', ${stock},
     ${price}, ${product_review}, '${product_colors}', '${size}', '${condition}',
-    '${product_description}'
+    '${product_description}', '${photo}'
   ) RETURNING *`)
 }
 const update = (

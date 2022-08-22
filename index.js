@@ -7,9 +7,14 @@ const createError = require('http-errors')
 const app = express()
 const cors = require('cors')
 const morgan = require('morgan')
+const UserRouter = require('./src/routes/users')
 const ProductRouter = require('./src/routes/products')
 const CategoryRouter = require('./src/routes/categories')
+const CustomerRouter = require('./src/routes/customers')
+const ShippingAddressRouter = require('./src/routes/shipping_addresses')
 const SellerRouter = require('./src/routes/sellers')
+const OrderRouter = require('./src/routes/orders')
+const TransactionRouter = require('./src/routes/transactions')
 
 const PORT = process.env.PORT || 5000
 const DB_HOST = process.env.DB_HOST
@@ -22,7 +27,12 @@ app.use(morgan('dev'))
 
 app.use('/products', ProductRouter)
 app.use('/category', CategoryRouter)
+app.use('/customer', CustomerRouter)
+app.use('/shipping-address', ShippingAddressRouter)
 app.use('/seller', SellerRouter)
+app.use('/order', OrderRouter)
+app.use('/transaction', TransactionRouter)
+app.use('/api', UserRouter)
 
 app.use(bodyParser.json())
 app.all('*', (req, res, next) => {
@@ -37,6 +47,6 @@ app.use((err,req,res)=>{
   })
 
 })
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log(`server running on http://${DB_HOST}:${PORT}`)
 })
